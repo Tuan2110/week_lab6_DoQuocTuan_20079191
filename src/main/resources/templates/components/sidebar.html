@@ -1,0 +1,113 @@
+<style>
+    body {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+
+    html {
+        height: -webkit-fill-available;
+    }
+
+    main {
+        display: flex;
+        flex-wrap: nowrap;
+        height: 100vh;
+        height: -webkit-fill-available;
+        max-height: 100vh;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .b-example-divider {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+    }
+
+    .bi {
+        vertical-align: -.125em;
+        pointer-events: none;
+        fill: currentColor;
+    }
+
+    .dropdown-toggle { outline: 0; }
+
+    .btn-toggle-nav a {
+        display: inline-flex;
+        padding: .1875rem .5rem;
+        margin-top: .125rem;
+        margin-left: 1.25rem;
+        text-decoration: none;
+    }
+    .btn-toggle-nav a:hover,
+    .btn-toggle-nav a:focus {
+        background-color: #d2f4ea;
+    }
+</style>
+<div th:fragment="sidebar">
+    <main>
+        <div class="b-example-divider"></div>
+        <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" style="width: 280px;">
+                <div class="row">
+                    <div class="col-10">
+                        <select id="blogSelect" class="form-select" aria-label="Default select example" onchange="updateLink();">
+                            <option selected value=""></option>
+                            <option th:each="blog:${#ctx.session.user.getBlogs()}" th:value="${blog.getId()}" th:text="${blog.getTitle()}"></option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <a href="/blog/create" class="btn btn-success"><i class="fas fa-plus"></i></a>
+                    </div>
+                </div>
+
+            <br>
+            <a href="/post/create?blogId=" id="addLink" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Bài đăng mới
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="/post" id="list" class="nav-link active" aria-current="page">
+                        Danh sách bài đọc
+                    </a>
+                </li>
+                <li>
+                    <a id="postLink" href="/post/mypost?blogId="  class="nav-link link-dark">
+                        Bài đăng
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link link-dark">
+                        Thống kê
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link link-dark">
+                        Bố cục
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link link-dark">
+                        Chủ đề
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+                    <strong>Đỗ Quốc Tuấn</strong>
+                </a>
+                <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+                    <li><a class="dropdown-item" href="#">Cài đặt</a></li>
+                    <li><a class="dropdown-item" href="#">Cá nhân</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                </ul>
+            </div>
+        </div>
+    </main>
+</div>

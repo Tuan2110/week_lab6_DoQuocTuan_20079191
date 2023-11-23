@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-
+T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous">
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-
+C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+    <style>
+        .card {
+            position: relative;
+        }
+
+        .time {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body onload="loadSelect()">
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <div th:replace="~{components/sidebar::sidebar}"></div>
+            </div>
+            <div class="col-8">
+                <br>
+                <div class="row">
+                    <div class="col-4" >
+                            <select id="blog" class="form-select w-5" aria-label="Default select example" onchange="redirectToLink()">
+                                <option selected value="">Tất cả blog</option>
+                                <option th:each="blog:${blogs}" th:value="${blog.getId()}" th:text="${blog.getTitle()}"></option>
+                            </select>
+                        <input type="hidden" id="blogId"  th:value="${blogId}">
+                    </div>
+                    <div class="col-5"></div>
+                    <div class="col-3"><a href="/blog/manage" class="btn btn-success">Quản Lý</a></div>
+                </div>
+                <div class="row" th:each="post : ${posts}">
+                    <div class="card mt-4">
+                        <h5 class="mt-3" th:text="${post.getBlog().getTitle()}"></h5> <p class="time"></p> <input type="hidden" id="time"  th:value="${post.getCreatedAt()}">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${post.getTitle()}"></h5>
+                            <p class="card-text" th:text="${post.getSummary()}">
+                            </p>
+                            <a th:href="'/post/detail/'+${post.getId()}" class="btn btn-primary">Đọc thêm</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function loadSelect() {
+            const blogId = document.getElementById("blogId").value;
+            console.log(blogId);
+            const selectElement = document.getElementById("blog");
+            for (let i = 0; i < selectElement.options.length; i++) {
+                if (selectElement.options[i].value === blogId) {
+                    selectElement.options[i].selected = true;
+                    break;
+                }
+            }
+        }
+        function redirectToLink() {
+            const selectedValue = document.getElementById("blog").value;
+            window.location.href = "http://localhost:8080/post?blogId=" + selectedValue;
+        }
+
+        const createAt = document.getElementById("time").value;
+        const timeAgo = getTimeAgo(createAt);
+        document.querySelector('.time').textContent = timeAgo;
+
+        function getTimeAgo(createAt) {
+            const currentTime = new Date();
+            const timeDifference = currentTime - new Date(createAt);
+            const seconds = Math.floor(timeDifference / 1000);
+
+            const intervals = {
+                'năm': 31536000,
+                'tháng': 2592000,
+                'tuần': 604800,
+                'ngày': 86400,
+                'giờ': 3600,
+                'phút': 60,
+                'giây': 1
+            };
+
+            for (const interval in intervals) {
+                const value = Math.floor(seconds / intervals[interval]);
+                if (value >= 1) {
+                    return value + ' ' + interval + (value === 1 ? ' trước' : ' trước');
+                }
+            }
+            return 'Vừa mới đây';
+        }
+        function updateLink() {
+            const selectedBlogId = document.getElementById("blogSelect").value;
+            const postLink = document.getElementById("postLink");
+            postLink.href = "/post/mypost?blogId=" + selectedBlogId;
+            const addLink = document.getElementById("addLink");
+            addLink.href = "/post/create?blogId=" + selectedBlogId;
+        }
+    </script>
+</body>
+</html>

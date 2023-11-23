@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post-Details</title>
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-
+T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous">
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-
+C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+    <style>
+        #comment {
+            margin-top: 20px;
+        }
+
+        .comment-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .sub-comment-container {
+            margin-left: 20px;
+            margin-top: 10px;
+            border: 1px solid #eee;
+            padding: 10px;
+        }
+        .a{
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-1 mt-2" >
+                <a href="#" style="color: grey"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <div class="col-11">
+                <h2 th:text="${post.getBlog().getTitle()}"></h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+                <div class="card-body">
+                    <input type="hidden" id="postId" th:value="${post.getId()}">
+                    <h4 th:text="${post.getTitle()}"></h4>
+                    <p class="card-text" th:text="${post.getCreatedAt()}"></p>
+                    <p class="card-text" th:text="${post.getContent()}">
+                    </p>
+                    <h5>Bình luận về bài viết</h5>
+                    <div id="comment">
+                        <div th:each="comment: ${comments}" th:id="${comment.getId()}" class="comment-container">
+                            <b th:text="${comment.getUser().getLastName()}"></b>
+                            <p th:text="${comment.getContent()}"></p>
+                            <a class="a" href="#" th:onclick="'reply(' + ${comment.getId()} + ')'"><b>Trả lời</b></a>
+                            <div th:each="subcomment: ${comment.getPostComments()}" class="sub-comment-container">
+                                <b th:text="${subcomment.getUser().getLastName()}"></b>
+                                <p th:text="${subcomment.getContent()}"></p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <label>
+                        <input type="text" id="commentInput" placeholder="Nhập nhận xét">
+                    </label>
+                    <a type="submit" href="#"
+                       onclick="submitComment()" class="btn btn-success">Gửi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function submitComment() {
+            var newComment = document.getElementById("commentInput").value;
+            var postId = document.getElementById("postId").value;
+            var content = encodeURIComponent(newComment);
+            var url = '/comment?postId=' + postId + '&content=' + content + '&parentId=';
+            window.location.href = url;
+
+            var newCommentContainer = document.createElement("div");
+            newCommentContainer.setAttribute("id", "id_" + getNextCommentId());
+            newCommentContainer.classList.add("comment-container");
+            newCommentContainer.innerHTML = "<b>Người nhận xét</b><p>" + newComment + "</p>";
+            var replyLink = document.createElement("a");
+            replyLink.classList.add("a");
+            replyLink.href = "#";
+            replyLink.innerHTML = "<b>Trả lời</b>";
+            replyLink.onclick = function() {
+                reply(newCommentContainer.id);
+            };
+            newCommentContainer.appendChild(replyLink);
+            var lineBreak = document.createElement("br");
+            newCommentContainer.appendChild(lineBreak);
+            document.getElementById("comment").appendChild(newCommentContainer);
+            document.getElementById("commentInput").value = "";
+        }
+
+        function reply(id) {
+            var currentContent = document.getElementById(id).innerHTML;
+            var newSubCommentContainer = document.createElement("div");
+            newSubCommentContainer.classList.add("sub-comment-container");
+            newSubCommentContainer.innerHTML = "<br><label>" +
+                "<input type=\"text\" id=\"commentInput_" + id + "\" placeholder=\"Trả lời bình luận\">" +
+                "</label>";
+            var submitButton = document.createElement("button");
+            submitButton.classList.add("btn", "btn-success");
+            submitButton.innerHTML = "Gửi";
+            submitButton.onclick = function() {
+                submitSubComment(id);
+                newSubCommentContainer.remove();
+            };
+            newSubCommentContainer.appendChild(submitButton);
+            document.getElementById(id).appendChild(newSubCommentContainer);
+            document.getElementById("commentInput_" + id).value = "";
+        }
+
+        function submitSubComment(parentId) {
+            var newSubComment = document.getElementById("commentInput_" + parentId).value;
+            var newSubCommentContainer = document.createElement("div");
+            newSubCommentContainer.classList.add("sub-comment-container");
+            newSubCommentContainer.innerHTML = "<b>Người nhận xét</b><p>" + newSubComment + "</p>";
+            document.getElementById(parentId).appendChild(newSubCommentContainer);
+            document.getElementById("commentInput_" + parentId).value = "";
+
+            var postId = document.getElementById("postId").value;
+            var subCommentContent = encodeURIComponent(newSubComment);
+            var subCommentUrl = '/comment?postId=' + postId + '&content=' + subCommentContent + '&parentId=' + parentId;
+            window.location.href = subCommentUrl;
+        }
+        function getNextCommentId() {
+            return 2;
+        }
+    </script>
+</body>
+</html>
